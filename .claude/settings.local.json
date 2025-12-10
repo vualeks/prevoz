@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(flutter pub get:*)",
+      "Bash(flutter analyze:*)",
+      "Bash(dart run build_runner:*)",
+      "Bash(flutter test)",
+      "Bash(tree:*)",
+      "Bash(flutter devices:*)",
+      "Bash(flutter run:*)",
+      "Bash(flutter pub run build_runner build:*)",
+      "Bash(nc:*)",
+      "WebFetch(domain:putevi.me)",
+      "WebSearch",
+      "WebFetch(domain:pub.dev)",
+      "WebFetch(domain:github.com)",
+      "Bash(flutter build:*)",
+      "Bash(dart run:*)",
+      "Bash(flutter install:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
