@@ -4,6 +4,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../../../core/network/api_endpoints.dart';
 import '../../../../core/network/dio_client.dart';
 import '../models/bus_stop.dart';
+import '../models/realtime_arrival.dart';
 import '../models/vehicle.dart';
 
 part 'vehicle_remote_datasource.g.dart';
@@ -59,6 +60,21 @@ class VehicleRemoteDataSource {
           .toList();
     } on DioException catch (e) {
       throw Exception('Failed to fetch bus stops: ${e.message}');
+    }
+  }
+
+  /// Fetches real-time arrival information for a specific bus stop
+  Future<List<RealtimeArrival>> getRealtimeArrivals(String stopId) async {
+    try {
+      final url = ApiEndpoints.realtimeArrivalsByStop(stopId);
+      final response = await _dio.get(url);
+
+      final List<dynamic> data = response.data as List<dynamic>;
+      return data
+          .map((json) => RealtimeArrival.fromJson(json as Map<String, dynamic>))
+          .toList();
+    } on DioException catch (e) {
+      throw Exception('Failed to fetch realtime arrivals: ${e.message}');
     }
   }
 }

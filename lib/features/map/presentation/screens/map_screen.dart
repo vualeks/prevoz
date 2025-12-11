@@ -5,6 +5,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';
 import 'package:flutter_map_tile_caching/flutter_map_tile_caching.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:hive/hive.dart';
 import 'package:latlong2/latlong.dart';
 
@@ -14,9 +15,9 @@ import '../../../../core/utils/constants.dart';
 import '../../../../core/utils/day_of_week.dart';
 import '../../../../core/utils/route_constants.dart';
 import '../../../../core/utils/vehicle_trail_tracker.dart';
-import '../../../../core/models/route_at_stop.dart';
 import '../../../../core/models/bus_stop_cache.dart';
 import '../../data/models/bus_stop.dart';
+import '../../data/models/realtime_arrival.dart';
 import '../providers/vehicles_provider.dart';
 import '../../../settings/presentation/screens/settings_screen.dart';
 
@@ -54,6 +55,10 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   // Vehicle trail tracking
   final VehicleTrailTracker _trailTracker = VehicleTrailTracker();
   Map<String, VehicleTrail> _vehicleTrails = {};
+
+  // User location tracking
+  Position? _userLocation;
+  bool _isLoadingLocation = false;
 
   @override
   void initState() {
@@ -359,31 +364,13 @@ class _MapScreenState extends ConsumerState<MapScreen> {
               ),
               const SizedBox(height: 12),
 
-              // Stop details
+              // Stop ID info
               Card(
                 child: Padding(
                   padding: const EdgeInsets.all(12),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Current Route Schedule',
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                      const SizedBox(height: 8),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text('Arrival: ${stop.arrivalTime}'),
-                          Text('Departure: ${stop.departureTime}'),
-                        ],
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'Stop ID: ${stop.stopId} • Sequence: ${stop.stopSequence}',
-                        style: Theme.of(context).textTheme.bodySmall,
-                      ),
-                    ],
+                  child: Text(
+                    'Stop ID: ${stop.stopId}',
+                    style: Theme.of(context).textTheme.bodySmall,
                   ),
                 ),
               ),
@@ -391,19 +378,34 @@ class _MapScreenState extends ConsumerState<MapScreen> {
               const SizedBox(height: 16),
               const Divider(),
 
-              // All routes at this stop
+              // Real-time arrivals at this stop
               Consumer(
                 builder: (context, ref, child) {
-                  final routesAsync = ref.watch(routesAtStopProvider(stop.stopId));
+                  final arrivalsAsync = ref.watch(realtimeArrivalsProvider(stop.stopId));
 
-                  return routesAsync.when(
-                    data: (routes) {
-                      if (routes.isEmpty) {
+                  return arrivalsAsync.when(
+                    data: (arrivals) {
+                      if (arrivals.isEmpty) {
                         return const Padding(
                           padding: EdgeInsets.all(16),
-                          child: Text(
-                            'No other routes found at this stop',
-                            style: TextStyle(color: Colors.grey),
+                          child: Column(
+                            children: [
+                              Icon(Icons.schedule, size: 48, color: Colors.grey),
+                              SizedBox(height: 8),
+                              Text(
+                                'No buses arriving soon',
+                                style: TextStyle(
+                                  color: Colors.grey,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              SizedBox(height: 4),
+                              Text(
+                                'Check back later for real-time arrivals',
+                                style: TextStyle(color: Colors.grey, fontSize: 12),
+                              ),
+                            ],
                           ),
                         );
                       }
@@ -411,26 +413,55 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            'All Routes at This Stop (${routes.length})',
-                            style: Theme.of(context).textTheme.titleMedium,
+                          Row(
+                            children: [
+                              const Icon(Icons.access_time, size: 20, color: Colors.blue),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Real-Time Arrivals (${arrivals.length})',
+                                style: Theme.of(context).textTheme.titleMedium,
+                              ),
+                            ],
                           ),
                           const SizedBox(height: 12),
-                          ...routes.map((route) => _buildRouteCard(context, route)),
+                          ...arrivals.map((arrival) => _buildRealtimeArrivalCard(context, arrival)),
                         ],
                       );
                     },
                     loading: () => const Center(
                       child: Padding(
                         padding: EdgeInsets.all(16),
-                        child: CircularProgressIndicator(),
+                        child: Column(
+                          children: [
+                            CircularProgressIndicator(),
+                            SizedBox(height: 12),
+                            Text(
+                              'Loading real-time arrivals...',
+                              style: TextStyle(color: Colors.grey),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                     error: (error, stack) => Padding(
                       padding: const EdgeInsets.all(16),
-                      child: Text(
-                        'Error loading routes: $error',
-                        style: const TextStyle(color: Colors.red),
+                      child: Column(
+                        children: [
+                          const Icon(Icons.error_outline, size: 48, color: Colors.red),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Error loading arrivals',
+                            style: TextStyle(
+                              color: Colors.red.shade700,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            'Check your internet connection',
+                            style: const TextStyle(color: Colors.grey, fontSize: 12),
+                          ),
+                        ],
                       ),
                     ),
                   );
@@ -443,15 +474,18 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     );
   }
 
-  /// Build a card for a route at a stop
-  Widget _buildRouteCard(BuildContext context, RouteAtStop route) {
+  /// Build a card for a real-time arrival
+  Widget _buildRealtimeArrivalCard(BuildContext context, RealtimeArrival arrival) {
+    final routeColor = RouteColors.getColorForRoute(arrival.routeShortName);
+    final routeName = getRouteName(arrival.routeShortName);
+
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
       child: ListTile(
         leading: CircleAvatar(
-          backgroundColor: route.color,
+          backgroundColor: routeColor,
           child: Text(
-            route.routeId,
+            arrival.routeShortName,
             style: const TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.bold,
@@ -460,27 +494,67 @@ class _MapScreenState extends ConsumerState<MapScreen> {
           ),
         ),
         title: Text(
-          route.routeName,
+          routeName,
           style: const TextStyle(fontWeight: FontWeight.w500),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
         ),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 4),
-            Text(route.directionLabel),
             Text(
-              '${route.arrivalTime} - ${route.departureTime}',
+              arrival.destination,
               style: const TextStyle(fontSize: 12),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(height: 4),
+            Row(
+              children: [
+                Icon(
+                  Icons.access_time,
+                  size: 14,
+                  color: arrival.remainingMinutes <= 5 ? Colors.red : Colors.blue,
+                ),
+                const SizedBox(width: 4),
+                Expanded(
+                  child: Text(
+                    arrival.formattedArrivalTime,
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                      color: arrival.remainingMinutes <= 5 ? Colors.red : Colors.blue,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
-        trailing: Icon(Icons.arrow_forward, color: route.color),
+        trailing: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          decoration: BoxDecoration(
+            color: arrival.remainingMinutes <= 5
+                ? Colors.red.withValues(alpha: 0.1)
+                : routeColor.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Text(
+            '${arrival.remainingMinutes} min',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 12,
+              color: arrival.remainingMinutes <= 5 ? Colors.red : routeColor,
+            ),
+          ),
+        ),
         onTap: () {
           // Close the bottom sheet
           Navigator.pop(context);
 
           // Show the selected route on the map
-          _onBusTapped(route.routeId);
+          _onBusTapped(arrival.routeShortName);
         },
       ),
     );
@@ -854,6 +928,35 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                     );
                   },
                 ),
+
+              // User Location Marker (always on top)
+              if (_userLocation != null)
+                MarkerLayer(
+                  markers: [
+                    Marker(
+                      point: LatLng(_userLocation!.latitude, _userLocation!.longitude),
+                      width: 50,
+                      height: 50,
+                      child: Transform.rotate(
+                        angle: -_currentRotation * (3.14159 / 180), // Counter-rotate to keep marker upright
+                        child: Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.blue.withValues(alpha: 0.3),
+                            border: Border.all(color: Colors.blue, width: 3),
+                          ),
+                          child: const Center(
+                            child: Icon(
+                              Icons.my_location,
+                              color: Colors.blue,
+                              size: 24,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
             ],
           ),
 
@@ -1146,23 +1249,151 @@ class _MapScreenState extends ConsumerState<MapScreen> {
           ),
           const SizedBox(height: 8),
 
-          // Center on Podgorica
+          // Center on user location
           FloatingActionButton(
             heroTag: 'center',
-            onPressed: () {
-              _mapController.move(
-                const LatLng(
-                  AppConstants.podgoricaLat,
-                  AppConstants.podgoricaLng,
-                ),
-                AppConstants.defaultMapZoom,
-              );
-            },
-            child: const Icon(Icons.my_location),
+            onPressed: _isLoadingLocation ? null : _moveToUserLocation,
+            child: _isLoadingLocation
+                ? const SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.white,
+                    ),
+                  )
+                : const Icon(Icons.my_location),
           ),
         ],
       ),
     );
+  }
+
+  /// Check and request location permission
+  Future<bool> _checkLocationPermission() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    // Check if location services are enabled
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Location services are disabled. Please enable them in settings.'),
+            backgroundColor: Colors.orange,
+            duration: Duration(seconds: 4),
+          ),
+        );
+      }
+      return false;
+    }
+
+    // Check location permission
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Location permission denied. Please grant permission to use this feature.'),
+              backgroundColor: Colors.red,
+              duration: Duration(seconds: 4),
+            ),
+          );
+        }
+        return false;
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Location permission permanently denied. Please enable in settings.'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 5),
+            action: SnackBarAction(
+              label: 'Settings',
+              onPressed: () => Geolocator.openLocationSettings(),
+            ),
+          ),
+        );
+      }
+      return false;
+    }
+
+    return true;
+  }
+
+  /// Get user's current location and move map to it
+  Future<void> _moveToUserLocation() async {
+    setState(() {
+      _isLoadingLocation = true;
+    });
+
+    try {
+      // Check permissions
+      final hasPermission = await _checkLocationPermission();
+      if (!hasPermission) {
+        setState(() {
+          _isLoadingLocation = false;
+        });
+        return;
+      }
+
+      // Get current position
+      final position = await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+          timeLimit: Duration(seconds: 10),
+        ),
+      );
+
+      if (mounted) {
+        setState(() {
+          _userLocation = position;
+          _isLoadingLocation = false;
+        });
+
+        // Move map to user location with zoom 16 (more zoomed in than default)
+        _mapController.move(
+          LatLng(position.latitude, position.longitude),
+          16.0,
+        );
+
+        // Show success message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.check_circle, color: Colors.white),
+                const SizedBox(width: 8),
+                Text('Centered on your location'),
+              ],
+            ),
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e) {
+      debugPrint('Error getting user location: $e');
+      if (mounted) {
+        setState(() {
+          _isLoadingLocation = false;
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to get location: ${e.toString()}'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 4),
+          ),
+        );
+      }
+    }
   }
 
   void _resetNorth() async {

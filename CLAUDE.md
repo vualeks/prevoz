@@ -12,14 +12,15 @@
 
 ## 📱 Current Status
 
-**Version:** 1.0.0
+**Version:** 1.0.1
 **Status:** All major features complete and working
 
 ### Implemented Features
 - ✅ Real-time bus tracking with 10-second auto-refresh
 - ✅ Interactive map with CartoDB Voyager tiles + offline caching (FMTC)
 - ✅ Route visualization with OSRM road-following polylines (cached in Hive)
-- ✅ Bus stop markers with route discovery (tap any stop to see all routes)
+- ✅ Bus stop real-time arrivals (tap any stop to see when buses arrive)
+- ✅ User location tracking with GPS (center map on your location)
 - ✅ Vehicle movement trails (last 7 positions, ~70 seconds of history)
 - ✅ Toggle view between buses and all bus stops (573 stops with clustering)
 - ✅ First-launch preload (downloads tiles, caches routes/stops/geometries)
@@ -71,6 +72,12 @@
 - **GET** `/api/gtfs/stops/by-route-day-direction`
 - Params: `routeId`, `dayOfWeek` (Serbian: Ponedeljak-Nedjelja), `directionId` (0/1)
 - Returns: `[{id, stopId, stopName, arrivalTime, departureTime, latitude, longitude, stopSequence, stopTimeId}]`
+
+### Real-Time Arrivals
+- **GET** `/api/gtfs/display/realtime/{stopId}`
+- Returns: `[{routeShortName, destination, remainingMinutes, formattedArrivalTime}]`
+- Shows when next buses will arrive at a specific stop
+- Includes delay information in Serbian (e.g., "stiže za 3 min", "5 min kasnije")
 
 ### Route Names Reference
 Source: https://putevi.me/gradski-prevoz/aktuelni-red-voznje/
@@ -147,6 +154,9 @@ assets/
 - **Marker rotation:** Counter-rotation applied to stay upright when map rotates
 - **Cache strategy:** Cache-first with OSRM fallback, straight-line fallback on error
 - **Performance:** Marker clustering reduces 573 stops to ~50-100 clusters at low zoom
+- **Real-time arrivals:** Shows live bus arrivals with delay info, replaces static schedule display
+- **User location:** GPS-based with permission handling, centers map at zoom 16, shows blue marker
+- **Location permissions:** Full permission flow with proper error handling and Settings deep-link
 
 ---
 

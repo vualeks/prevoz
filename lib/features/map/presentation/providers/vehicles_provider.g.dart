@@ -351,5 +351,140 @@ class _BusStopsProviderElement
   int get directionId => (origin as BusStopsProvider).directionId;
 }
 
+String _$realtimeArrivalsHash() => r'7a088e9c61b674634636d034546327d402ca9767';
+
+/// Provider that fetches real-time arrival information for a specific bus stop
+///
+/// Copied from [realtimeArrivals].
+@ProviderFor(realtimeArrivals)
+const realtimeArrivalsProvider = RealtimeArrivalsFamily();
+
+/// Provider that fetches real-time arrival information for a specific bus stop
+///
+/// Copied from [realtimeArrivals].
+class RealtimeArrivalsFamily extends Family<AsyncValue<List<RealtimeArrival>>> {
+  /// Provider that fetches real-time arrival information for a specific bus stop
+  ///
+  /// Copied from [realtimeArrivals].
+  const RealtimeArrivalsFamily();
+
+  /// Provider that fetches real-time arrival information for a specific bus stop
+  ///
+  /// Copied from [realtimeArrivals].
+  RealtimeArrivalsProvider call(String stopId) {
+    return RealtimeArrivalsProvider(stopId);
+  }
+
+  @override
+  RealtimeArrivalsProvider getProviderOverride(
+    covariant RealtimeArrivalsProvider provider,
+  ) {
+    return call(provider.stopId);
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'realtimeArrivalsProvider';
+}
+
+/// Provider that fetches real-time arrival information for a specific bus stop
+///
+/// Copied from [realtimeArrivals].
+class RealtimeArrivalsProvider
+    extends AutoDisposeFutureProvider<List<RealtimeArrival>> {
+  /// Provider that fetches real-time arrival information for a specific bus stop
+  ///
+  /// Copied from [realtimeArrivals].
+  RealtimeArrivalsProvider(String stopId)
+    : this._internal(
+        (ref) => realtimeArrivals(ref as RealtimeArrivalsRef, stopId),
+        from: realtimeArrivalsProvider,
+        name: r'realtimeArrivalsProvider',
+        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+            ? null
+            : _$realtimeArrivalsHash,
+        dependencies: RealtimeArrivalsFamily._dependencies,
+        allTransitiveDependencies:
+            RealtimeArrivalsFamily._allTransitiveDependencies,
+        stopId: stopId,
+      );
+
+  RealtimeArrivalsProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.stopId,
+  }) : super.internal();
+
+  final String stopId;
+
+  @override
+  Override overrideWith(
+    FutureOr<List<RealtimeArrival>> Function(RealtimeArrivalsRef provider)
+    create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: RealtimeArrivalsProvider._internal(
+        (ref) => create(ref as RealtimeArrivalsRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        stopId: stopId,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeFutureProviderElement<List<RealtimeArrival>> createElement() {
+    return _RealtimeArrivalsProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is RealtimeArrivalsProvider && other.stopId == stopId;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, stopId.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+mixin RealtimeArrivalsRef
+    on AutoDisposeFutureProviderRef<List<RealtimeArrival>> {
+  /// The parameter `stopId` of this provider.
+  String get stopId;
+}
+
+class _RealtimeArrivalsProviderElement
+    extends AutoDisposeFutureProviderElement<List<RealtimeArrival>>
+    with RealtimeArrivalsRef {
+  _RealtimeArrivalsProviderElement(super.provider);
+
+  @override
+  String get stopId => (origin as RealtimeArrivalsProvider).stopId;
+}
+
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

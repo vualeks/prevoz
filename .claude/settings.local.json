@@ -16,7 +16,8 @@
       "WebFetch(domain:github.com)",
       "Bash(flutter build:*)",
       "Bash(dart run:*)",
-      "Bash(flutter install:*)"
+      "Bash(flutter install:*)",
+      "Bash(curl:*)"
     ],
     "deny": [],
     "ask": []

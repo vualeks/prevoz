@@ -3,6 +3,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../domain/repositories/vehicle_repository.dart';
 import '../datasources/vehicle_remote_datasource.dart';
 import '../models/bus_stop.dart';
+import '../models/realtime_arrival.dart';
 import '../models/vehicle.dart';
 
 part 'vehicle_repository_impl.g.dart';
@@ -34,6 +35,11 @@ class VehicleRepositoryImpl implements VehicleRepository {
       dayOfWeek: dayOfWeek,
       directionId: directionId,
     );
+  }
+
+  @override
+  Future<List<RealtimeArrival>> getRealtimeArrivals(String stopId) async {
+    return await _remoteDataSource.getRealtimeArrivals(stopId);
   }
 }
 

@@ -7,6 +7,7 @@ class ApiEndpoints {
   // Endpoints
   static const String vehicles = '/api/dispatcher/vehicles/public';
   static const String busStops = '/api/gtfs/stops/by-route-day-direction';
+  static const String realtimeArrivals = '/api/gtfs/display/realtime';
 
   // Helper methods
   static String vehicleByRoute(String routeName) => '$vehicles?route=$routeName';
@@ -17,4 +18,7 @@ class ApiEndpoints {
     required int directionId,
   }) =>
       '$busStops?routeId=$routeId&dayOfWeek=$dayOfWeek&directionId=$directionId';
+
+  static String realtimeArrivalsByStop(String stopId) =>
+      '$realtimeArrivals/$stopId';
 }

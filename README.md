@@ -14,11 +14,11 @@ Track buses in real-time, explore routes, discover nearby stops, and plan your j
 
 ### 📥 Download
 
-**Latest Release: v1.0.0**
+**Latest Release: v1.0.1**
 
-[![Download APK](https://img.shields.io/badge/Download-APK-green?style=for-the-badge&logo=android)](https://github.com/vualeks/prevoz/releases/download/v1.0.0/prevoz-v1.0.0-release.apk)
+[![Download APK](https://img.shields.io/badge/Download-APK-green?style=for-the-badge&logo=android)](https://github.com/vualeks/prevoz/releases/download/v1.0.1/prevoz-v1.0.1-release.apk)
 
-**Direct Download:** [prevoz-v1.0.0-release.apk](https://github.com/vualeks/prevoz/releases/download/v1.0.0/prevoz-v1.0.0-release.apk) (57 MB)
+**Direct Download:** [prevoz-v1.0.1-release.apk](https://github.com/vualeks/prevoz/releases/download/v1.0.1/prevoz-v1.0.1-release.apk) (57 MB)
 
 > **Note:** This is a release APK signed with a debug key. For production use, you should sign it with your own release key.
 
@@ -33,6 +33,9 @@ Track buses in real-time, explore routes, discover nearby stops, and plan your j
 
 #### 🗺️ Interactive Map
 - **Dual view modes**: Switch between buses and bus stops
+- **User location tracking**: Tap center button to find your location on the map
+- **GPS integration**: Shows your position with a blue marker
+- **Location permissions**: Smart permission handling with helpful error messages
 - **573 bus stops** with intelligent marker clustering
 - **Offline map tiles** with CartoDB Voyager styling
 - **Smooth zoom and pan** with excellent performance
@@ -40,8 +43,10 @@ Track buses in real-time, explore routes, discover nearby stops, and plan your j
 - Compass button for quick north orientation
 
 #### 🚏 Bus Stop Information
-- **Tap any stop** to see all routes that service it
-- **Route schedules** with arrival and departure times
+- **Tap any stop** to see real-time bus arrivals
+- **Live arrival times** with delay information in Serbian
+- **Countdown timers** showing when buses will arrive
+- **Urgent alerts** - red highlighting for buses arriving in 5 minutes or less
 - **Interactive route cards** - tap to visualize the entire route
 - **Smart clustering** - stops group at low zoom for better performance
 - **573 unique stops** across Podgorica
@@ -222,11 +227,11 @@ Pratite autobuse u realnom vremenu, istražite rute, pronađite najbliže stanic
 
 ### 📥 Preuzimanje
 
-**Poslednja verzija: v1.0.0**
+**Poslednja verzija: v1.0.1**
 
-[![Preuzmi APK](https://img.shields.io/badge/Preuzmi-APK-green?style=for-the-badge&logo=android)](https://github.com/vualeks/prevoz/releases/download/v1.0.0/prevoz-v1.0.0-release.apk)
+[![Preuzmi APK](https://img.shields.io/badge/Preuzmi-APK-green?style=for-the-badge&logo=android)](https://github.com/vualeks/prevoz/releases/download/v1.0.1/prevoz-v1.0.1-release.apk)
 
-**Direktno preuzimanje:** [prevoz-v1.0.0-release.apk](https://github.com/vualeks/prevoz/releases/download/v1.0.0/prevoz-v1.0.0-release.apk) (57 MB)
+**Direktno preuzimanje:** [prevoz-v1.0.1-release.apk](https://github.com/vualeks/prevoz/releases/download/v1.0.1/prevoz-v1.0.1-release.apk) (57 MB)
 
 > **Napomena:** Ovo je release APK potpisan debug ključem. Za produkcijsku upotrebu, trebali biste ga potpisati sopstvenim release ključem.
 
@@ -241,6 +246,9 @@ Pratite autobuse u realnom vremenu, istražite rute, pronađite najbliže stanic
 
 #### 🗺️ Interaktivna mapa
 - **Dva režima prikaza**: Prebacivanje između autobusa i autobuskih stanica
+- **Praćenje korisničke lokacije**: Dodirnite dugme za centriranje da pronađete svoju poziciju na mapi
+- **GPS integracija**: Prikazuje vašu poziciju plavim markerom
+- **Dozvole za lokaciju**: Pametno upravljanje dozvolama sa korisnim porukama o greškama
 - **573 autobuske stanice** sa inteligentnim grupisanjem markera
 - **Offline keširanje mape** sa CartoDB Voyager stilom
 - **Glatko zumiranje i pomeranje** sa odličnim performansama
@@ -248,8 +256,10 @@ Pratite autobuse u realnom vremenu, istražite rute, pronađite najbliže stanic
 - Dugme kompasa za brzu orijentaciju ka severu
 
 #### 🚏 Informacije o stanicama
-- **Dodirnite bilo koju stanicu** da vidite sve linije koje prolaze kroz nju
-- **Vozni redovi linija** sa vremenima dolaska i polaska
+- **Dodirnite bilo koju stanicu** da vidite dolazak autobusa u realnom vremenu
+- **Vremena dolazaka uživo** sa informacijama o kašnjenjima na srpskom jeziku
+- **Brojači vremena** koji pokazuju kada će autobusi stići
+- **Hitna upozorenja** - crveno isticanje za autobuse koji stižu za 5 minuta ili manje
 - **Interaktivne kartice linija** - dodirnite da vizualizujete celu rutu
 - **Pametno grupisanje** - stanice se grupišu pri malim zum nivoima za bolje performanse
 - **573 jedinstvene stanice** širom Podgorice

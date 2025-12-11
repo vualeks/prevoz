@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../data/models/bus_stop.dart';
+import '../../data/models/realtime_arrival.dart';
 import '../../data/models/vehicle.dart';
 import '../../data/repositories/vehicle_repository_impl.dart';
 
@@ -38,4 +39,14 @@ Future<List<BusStop>> busStops(
     dayOfWeek: dayOfWeek,
     directionId: directionId,
   );
+}
+
+/// Provider that fetches real-time arrival information for a specific bus stop
+@riverpod
+Future<List<RealtimeArrival>> realtimeArrivals(
+  Ref ref,
+  String stopId,
+) async {
+  final repository = ref.watch(vehicleRepositoryProvider);
+  return await repository.getRealtimeArrivals(stopId);
 }

@@ -1,4 +1,5 @@
 import '../../data/models/bus_stop.dart';
+import '../../data/models/realtime_arrival.dart';
 import '../../data/models/vehicle.dart';
 
 /// Repository interface for vehicle and bus stop operations
@@ -15,4 +16,7 @@ abstract class VehicleRepository {
     required String dayOfWeek,
     required int directionId,
   });
+
+  /// Fetches real-time arrival information for a specific bus stop
+  Future<List<RealtimeArrival>> getRealtimeArrivals(String stopId);
 }
