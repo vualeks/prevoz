@@ -9,6 +9,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:hive/hive.dart';
 import 'package:latlong2/latlong.dart';
 
+import '../../../../core/network/map_tiles.dart';
 import '../../../../core/services/preload_service.dart';
 import '../../../../core/services/providers.dart';
 import '../../../../core/utils/constants.dart';
@@ -89,8 +90,8 @@ class _MapScreenState extends ConsumerState<MapScreen> {
 
   Future<void> _initializeCache() async {
     try {
-      await FMTCObjectBoxBackend().initialise();
-      await const FMTCStore('mapStore').manage.create();
+      // Backend is initialised in main.dart; create() is a no-op if it exists
+      await const FMTCStore(MapTiles.storeName).manage.create();
       setState(() {
         _isCacheInitialized = true;
       });
@@ -648,12 +649,15 @@ class _MapScreenState extends ConsumerState<MapScreen> {
             children: [
               // CartoDB Tiles with caching (faster than OSM)
               TileLayer(
-                urlTemplate:
-                    'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
-                subdomains: const ['a', 'b', 'c', 'd'],
+                urlTemplate: MapTiles.urlTemplate,
+                subdomains: MapTiles.subdomains,
                 userAgentPackageName: 'com.example.prevoz',
                 maxZoom: 19,
-                tileProvider: FMTCTileProvider(stores: {'mapStore': null}),
+                tileProvider: FMTCTileProvider(
+                  stores: const {
+                    MapTiles.storeName: BrowseStoreStrategy.readUpdateCreate,
+                  },
+                ),
               ),
 
               // Route Polylines with OSRM geometry (shown when route is selected)

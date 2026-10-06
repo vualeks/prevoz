@@ -13,6 +13,7 @@ import '../utils/route_constants.dart';
 import '../../features/preload/domain/models/preload_progress.dart';
 import '../../features/map/domain/repositories/vehicle_repository.dart';
 import 'route_cache_service.dart';
+import '../network/map_tiles.dart';
 
 /// Service for preloading and caching all app data on first launch
 class PreloadService {
@@ -69,7 +70,7 @@ class PreloadService {
 
     try {
       // Initialize FMTC store
-      final store = FMTCStore('mapStore');
+      final store = FMTCStore(MapTiles.storeName);
       await store.manage.create();
 
       // Define region to download
@@ -79,9 +80,8 @@ class PreloadService {
         minZoom: 10,
         maxZoom: 16,
         options: TileLayer(
-          urlTemplate:
-              'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
-          subdomains: const ['a', 'b', 'c', 'd'],
+          urlTemplate: MapTiles.urlTemplate,
+          subdomains: MapTiles.subdomains,
         ),
       );
 

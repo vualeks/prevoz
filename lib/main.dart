@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter_map_tile_caching/flutter_map_tile_caching.dart';
 import 'app/app.dart';
+import 'core/network/map_tiles.dart';
 import 'core/models/route_geometry.dart';
 import 'core/models/bus_stop_cache.dart';
 import 'core/models/route_metadata.dart';
@@ -13,6 +14,11 @@ void main() async {
 
   // Initialize FMTC with ObjectBox backend
   await FMTCObjectBoxBackend().initialise();
+
+  // Drop the old tile store, it may hold "API KEY REQUIRED" placeholder tiles
+  const legacyStore = FMTCStore(MapTiles.legacyStoreName);
+  if (await legacyStore.manage.ready) await legacyStore.manage.delete();
+  await const FMTCStore(MapTiles.storeName).manage.create();
 
   // Initialize Hive for Flutter
   await Hive.initFlutter();
