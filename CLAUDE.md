@@ -24,7 +24,7 @@ Without the flag the key is empty and the map renders blank (CARTO returns 403).
 
 ## 📱 Current Status
 
-**Version:** 1.0.1
+**Version:** 1.0.2
 **Status:** All major features complete and working
 
 ### Implemented Features
