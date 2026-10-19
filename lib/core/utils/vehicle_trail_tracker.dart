@@ -7,7 +7,7 @@ import '../../features/map/data/models/vehicle.dart';
 class TrailPoint {
   final LatLng position;
   final DateTime timestamp;
-  final double speed;
+  final double? speed;
 
   TrailPoint({
     required this.position,
@@ -18,7 +18,7 @@ class TrailPoint {
   @override
   String toString() =>
       'TrailPoint(${position.latitude.toStringAsFixed(5)}, '
-      '${position.longitude.toStringAsFixed(5)}, $speed km/h)';
+      '${position.longitude.toStringAsFixed(5)}, ${speed ?? '?'} km/h)';
 }
 
 /// Represents a vehicle's movement trail
@@ -118,6 +118,9 @@ class VehicleTrailTracker {
   /// Maximum number of trails to keep in memory
   static const _maxTrails = 100;
 
+  /// Speed assumed for matching when the API doesn't report one (km/h)
+  static const _fallbackSpeedKmh = 60.0;
+
   /// Get all active trails
   Map<String, VehicleTrail> get trails => Map.unmodifiable(_trails);
 
@@ -202,10 +205,9 @@ class VehicleTrailTracker {
 
       // Calculate max expected distance based on speeds
       // Max distance = max(old speed, new speed) * 10 seconds + 50m buffer
-      final maxSpeed =
-          vehicle.speed > trail.points.first.speed
-              ? vehicle.speed
-              : trail.points.first.speed;
+      final newSpeed = vehicle.speed ?? _fallbackSpeedKmh;
+      final oldSpeed = trail.points.first.speed ?? _fallbackSpeedKmh;
+      final maxSpeed = newSpeed > oldSpeed ? newSpeed : oldSpeed;
       final maxExpectedDistance =
           (maxSpeed / 3.6) * 10 + 50; // Convert km/h to m/s
 

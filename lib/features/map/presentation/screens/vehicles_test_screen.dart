@@ -47,7 +47,9 @@ class VehiclesTestScreen extends ConsumerWidget {
                     'Lng: ${vehicle.longitude.toStringAsFixed(4)}',
                   ),
                   trailing: Text(
-                    '${vehicle.speed.toStringAsFixed(1)} km/h',
+                    vehicle.speed == null
+                        ? '– km/h'
+                        : '${vehicle.speed!.toStringAsFixed(1)} km/h',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),

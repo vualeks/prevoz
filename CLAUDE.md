@@ -24,7 +24,7 @@ Without the flag the key is empty and the map renders blank (CARTO returns 403).
 
 ## 📱 Current Status
 
-**Version:** 1.0.2
+**Version:** 1.0.3
 **Status:** All major features complete and working
 
 ### Implemented Features
@@ -77,7 +77,8 @@ Without the flag the key is empty and the map renders blank (CARTO returns 403).
 
 ### Vehicle Tracking
 - **GET** `/api/dispatcher/vehicles/public`
-- Returns: `[{routeName, latitude, longitude, speed}]`
+- Returns: `[{routeName, latitude, longitude}]` (`speed` dropped by the API in Oct 2026; model keeps it optional)
+- Response contains duplicate entries (same route + position)
 - Updates every 10 seconds
 
 ### Bus Stops
@@ -163,12 +164,21 @@ assets/
 - ✅ INTERNET permission (added to AndroidManifest.xml)
 - ✅ Location permissions (ACCESS_FINE_LOCATION, ACCESS_COARSE_LOCATION)
 - ✅ Preload screen visibility (light grey background, darker blue for contrast)
+- ✅ "Error loading vehicles" after API dropped `speed` (made optional in `Vehicle`)
+
+## ⚠️ Code generation is currently broken
+
+`dart run build_runner build` crashes (`Missing implementation of visitDotShorthandPropertyAccess`): the pinned
+riverpod_generator/freezed/json_serializable bundle analyzer 3.9, older than the Flutter SDK's Dart 3.13.
+`--delete-conflicting-outputs` deletes all generated files before crashing (restore with `git checkout`).
+`vehicle.freezed.dart` / `vehicle.g.dart` were hand-edited for the nullable `speed`. Upgrade the codegen
+packages before changing any freezed/riverpod/json model.
 
 ---
 
 ## 📝 Notes
 
-- **Vehicle matching:** Proximity-based (no unique IDs in API), max expected distance based on speed
+- **Vehicle matching:** Proximity-based (no unique IDs in API), max expected distance based on speed (60 km/h assumed when the API omits it)
 - **Trail filtering:** Only adds points when bus moves >5m (preserves history during stops)
 - **Marker rotation:** Counter-rotation applied to stay upright when map rotates
 - **Cache strategy:** Cache-first with OSRM fallback, straight-line fallback on error

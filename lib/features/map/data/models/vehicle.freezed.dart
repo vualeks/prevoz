@@ -24,7 +24,7 @@ mixin _$Vehicle {
   String get routeName => throw _privateConstructorUsedError;
   double get latitude => throw _privateConstructorUsedError;
   double get longitude => throw _privateConstructorUsedError;
-  double get speed => throw _privateConstructorUsedError;
+  double? get speed => throw _privateConstructorUsedError;
 
   /// Serializes this Vehicle to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -44,7 +44,7 @@ abstract class $VehicleCopyWith<$Res> {
     String routeName,
     double latitude,
     double longitude,
-    double speed,
+    double? speed,
   });
 }
 
@@ -66,7 +66,7 @@ class _$VehicleCopyWithImpl<$Res, $Val extends Vehicle>
     Object? routeName = null,
     Object? latitude = null,
     Object? longitude = null,
-    Object? speed = null,
+    Object? speed = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -82,10 +82,10 @@ class _$VehicleCopyWithImpl<$Res, $Val extends Vehicle>
                 ? _value.longitude
                 : longitude // ignore: cast_nullable_to_non_nullable
                       as double,
-            speed: null == speed
+            speed: freezed == speed
                 ? _value.speed
                 : speed // ignore: cast_nullable_to_non_nullable
-                      as double,
+                      as double?,
           )
           as $Val,
     );
@@ -104,7 +104,7 @@ abstract class _$$VehicleImplCopyWith<$Res> implements $VehicleCopyWith<$Res> {
     String routeName,
     double latitude,
     double longitude,
-    double speed,
+    double? speed,
   });
 }
 
@@ -125,7 +125,7 @@ class __$$VehicleImplCopyWithImpl<$Res>
     Object? routeName = null,
     Object? latitude = null,
     Object? longitude = null,
-    Object? speed = null,
+    Object? speed = freezed,
   }) {
     return _then(
       _$VehicleImpl(
@@ -141,10 +141,10 @@ class __$$VehicleImplCopyWithImpl<$Res>
             ? _value.longitude
             : longitude // ignore: cast_nullable_to_non_nullable
                   as double,
-        speed: null == speed
+        speed: freezed == speed
             ? _value.speed
             : speed // ignore: cast_nullable_to_non_nullable
-                  as double,
+                  as double?,
       ),
     );
   }
@@ -157,7 +157,7 @@ class _$VehicleImpl implements _Vehicle {
     required this.routeName,
     required this.latitude,
     required this.longitude,
-    required this.speed,
+    this.speed,
   });
 
   factory _$VehicleImpl.fromJson(Map<String, dynamic> json) =>
@@ -170,7 +170,7 @@ class _$VehicleImpl implements _Vehicle {
   @override
   final double longitude;
   @override
-  final double speed;
+  final double? speed;
 
   @override
   String toString() {
@@ -215,7 +215,7 @@ abstract class _Vehicle implements Vehicle {
     required final String routeName,
     required final double latitude,
     required final double longitude,
-    required final double speed,
+    final double? speed,
   }) = _$VehicleImpl;
 
   factory _Vehicle.fromJson(Map<String, dynamic> json) = _$VehicleImpl.fromJson;
@@ -227,7 +227,7 @@ abstract class _Vehicle implements Vehicle {
   @override
   double get longitude;
   @override
-  double get speed;
+  double? get speed;
 
   /// Create a copy of Vehicle
   /// with the given fields replaced by the non-null parameter values.

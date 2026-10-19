@@ -11,7 +11,7 @@ _$VehicleImpl _$$VehicleImplFromJson(Map<String, dynamic> json) =>
       routeName: json['routeName'] as String,
       latitude: (json['latitude'] as num).toDouble(),
       longitude: (json['longitude'] as num).toDouble(),
-      speed: (json['speed'] as num).toDouble(),
+      speed: (json['speed'] as num?)?.toDouble(),
     );
 
 Map<String, dynamic> _$$VehicleImplToJson(_$VehicleImpl instance) =>

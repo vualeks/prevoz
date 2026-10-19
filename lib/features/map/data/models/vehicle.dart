@@ -10,7 +10,8 @@ class Vehicle with _$Vehicle {
     required String routeName,
     required double latitude,
     required double longitude,
-    required double speed,
+    // No longer returned by the API (since Oct 2026), kept optional
+    double? speed,
   }) = _Vehicle;
 
   factory Vehicle.fromJson(Map<String, dynamic> json) =>
